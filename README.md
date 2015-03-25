@@ -84,11 +84,11 @@ We'll represent an Acme user (e.g., "Bob") with a user instance resource (`/user
 
 In other words ...
 
-|             | CREATE          | READ       | UPDATE      | DELETE   |
-| ----------- | --------------- | ---------- | ----------- | -------- |
-|             | `POST`          | `GET`      | `PUT`       | `DELETE` |
-| /users      | create user     | list users | bulk update | delete all users! |
-| /users/{id} | error           | show user  | if user exists, update; if not, error | delete user |
+|               | CREATE          | READ       | UPDATE      | DELETE   |
+| ------------- | --------------- | ---------- | ----------- | -------- |
+|               | `POST`          | `GET`      | `PUT`       | `DELETE` |
+| `/users`      | create user     | list users | bulk update | delete all users! |
+| `/users/{id}` | error           | show user  | if user exists, update; if not, error | delete user |
 
 
 ## URLs
