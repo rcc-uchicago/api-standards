@@ -7,10 +7,9 @@ This document provides guidelines and examples for Web APIs produced by the RCC,
 * [URLs](#urls)
 * [HTTP Verbs](#http-verbs)
 * [Responses](#responses)
-* [Error handling](#error-handling)
-* [Record limits](#record-limits)
-* [Request & Response Examples](#request--response-examples)
-* [Mock Responses](#mock-responses)
+* [Errors](#errors)
+* [Pagination](#pagination)
+* [More Examples](#more-examples)
 * [Tutorials](#tutorials)
 * [See Also](#see-also)
 
@@ -127,7 +126,7 @@ Add a new article to a particular magazine:
 ## Responses
 
 When repsonding to requests, avoid returning values in the keys of your
-response paylod.
+response payload.
 
 For example, return this ...
 
@@ -144,35 +143,48 @@ For example, return this ...
     ],
 
 
-## Error handling
+## Errors
 
-Error responses should include a common HTTP status code, message for the developer, message for the end-user (when appropriate), internal error code (corresponding to some specific internally determined ID), links where developers can find more info. For example:
+Error responses should always include one of the conventional HTTP status
+codes, the three most common being ...
 
-    {
-      "status" : 400,
-      "developerMessage" : "Verbose, plain language description of the problem. Provide developers
-       suggestions about how to solve their problems here",
-      "userMessage" : "This is a message that can be passed along to end-users, if needed.",
-      "errorCode" : "444444",
-      "moreInfo" : "http://ws.rcc.uchicago.edu/developer/path/to/help/for/444444,
-       http://drupal.org/node/444444",
-    }
-
-Use three simple, common response codes:
 * `200 - OK` - success
 * `400 - Bad Request` - failure due to client-side problem
 * `500 - Internal Server Error` - failure due to server-side problem
 
+An error response might additionally contain a message for the developer, a message for the end-user (when appropriate), an internal error code (corresponding to some specific internally determined ID), and links where developers can find more info. For example:
 
-## Record limits
+    {
+      "status" : 400,
+      "dev" : "Message for devs describing what went wrong.",
+      "msg" : "Message that can be passed along to users.",
+      "err" : "4444",
+      "info" : "http://ws.rcc.uchicago.edu/dev/errors/4444"
+    }
 
-* If no limit is specified, return results with a default limit.
-* To get records 51 through 75 do this:
-  * http://ws.rcc.uchicago.edu/magazines?limit=25&offset=50
-  * offset=50 means, ‘skip the first 50 records’
-  * limit=25 means, ‘return a maximum of 25 records’
 
-Information about record limits and total available count should also be included in the response. Example:
+## Pagination
+
+Collection resources can vary in size, and it's often useful to limit the
+number of elements from the collection represented in the response.  If no
+limit is specified in the request, you might want to return the response with a
+default limit.
+
+Use a default limit to number of users returned:
+
+    https://acme.org/api/v2/users
+
+Limit to 10 users:
+
+    https://acme.org/api/v2/users?limit=10
+
+Limit to 10 users, offset by 25 (i.e, users 26 to 36):
+
+    https://acme.org/api/v2/users?limit=10&offset=25
+
+In the above, `offset=25` means, ‘skip the first 25 records’.
+
+Information about record limits and total available count should also be included in the response. For example:
 
     {
         "metadata": {
@@ -186,20 +198,14 @@ Information about record limits and total available count should also be include
     }
 
 
-## Request & Response Examples
+## More Examples
 
-### API Resources
-
-  - [GET /magazines](#get-magazines)
-  - [GET /magazines/[id]](#get-magazinesid)
-  - [POST /magazines/[id]/articles](#post-magazinesidarticles)
+Below are some examples of requests and responses to those requests.
 
 
-### GET /magazines
+#### `GET /magazines`
 
-Example: http://ws.rcc.uchicago.edu/api/v1/magazines.json
-
-Response body:
+For example, consider a `GET` request made to `http://ws.rcc.uchicago.edu/api/v1/magazines`. The response body might be ...
 
     {
         "metadata": {
@@ -243,11 +249,9 @@ Response body:
     }
 
 
-### GET /magazines/[id]
+#### `GET /magazines/{id}`
 
-Example: http://ws.rcc.uchicago.edu/api/v1/magazines/[id].json
-
-Response body:
+For example, consider a `GET` request made to `http://ws.rcc.uchicago.edu/api/v1/magazines/{id}.json`. The response body might be ...
 
     {
         "id": "1234",
@@ -261,11 +265,7 @@ Response body:
     }
 
 
-### POST /magazines/[id]/articles
-
-Example: Create – POST  http://ws.rcc.uchicago.edu/api/v1/magazines/[id]/articles
-
-Request body:
+#### `POST /magazines/{id}/articles`
 
     [
         {
@@ -279,15 +279,6 @@ Request body:
             "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget ante ut augue scelerisque ornare. Aliquam tempus rhoncus quam vel luctus. Sed scelerisque fermentum fringilla. Suspendisse tincidunt nisl a metus feugiat vitae vestibulum enim vulputate. Quisque vehicula dictum elit, vitae cursus libero auctor sed. Vestibulum fermentum elementum nunc. Proin aliquam erat in turpis vehicula sit amet tristique lorem blandit. Nam augue est, bibendum et ultrices non, interdum in est. Quisque gravida orci lobortis... "
         }
     ]
-
-
-## Mock Responses
-
-It is suggested that each resource accept a 'mock' parameter on the testing server. Passing this parameter should return a mock data response (bypassing the backend).
-
-Implementing this feature early in development ensures that the API will exhibit consistent behavior, supporting a test driven development methodology.
-
-Note: If the mock parameter is included in a request to the production environment, an error should be raised.
 
 
 ## Tutorials
