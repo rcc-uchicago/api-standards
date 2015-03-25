@@ -1,6 +1,7 @@
 # Drupal Services Overview
 
-This document provides examples and resources for creating resources via the [Services][services] module, according to the Whitehouse API Standard.
+This document provides examples and resources for creating resources via the [Services][services] module.
+
 
 ## Exposing new resources directly via Services
 
@@ -17,11 +18,14 @@ Be sure that your endpoint path conforms to the Whitehouse API Standards:
 [endpoint_path] = /api/[version]/
 
 These default URL patterns necessitate a default, corresponding argument structure. For example:
+
 * CREATE operations expect argument ‘source’ to be defined as ‘data’
 * UPDATE operations expect at least two arguments, one with 'source' defined as 'path', and one with 'source' defined as 'data'
 * Etc.
 
+
 ## Resources
+
 * [Working with REST Server](https://drupal.org/node/783254)
 * [Posting data to a services endpoint](http://drupal.org/node/1334758)
 
