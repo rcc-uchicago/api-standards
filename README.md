@@ -52,8 +52,7 @@ They indicate the type of action to be taken on a resource.
 * Info included in the header of a request for a resource (such as authentication info) shouldn't generally affect how that resource is represented in the response. Different resource representations should only result from requesting different URLs.
 
 
----
-
+## An Example
 
 Suppose the base URI of our API is `http://acme.org/api`.
 
@@ -84,49 +83,38 @@ We'll represent an Acme user (e.g., "Bob") with a user instance resource (`/user
 * `DELETE` - **delete** the user.
 
 
----
-
-
 ### URLs
 
+Examples of good URL design:
 
-### Good examples
+* List of users returned in JSON format:
+  
+    GET http://ws.rcc.uchicago.edu/api/v1/users.json
 
-* List of magazines:
-  * GET http://ws.rcc.uchicago.edu/api/v1/magazines.json
+* Query string filtering:
+  
+    GET http://ws.rcc.uchicago.edu/api/v1/users.json?group=rcc&sort=usage
 
-* Filtering is a query:
-  * GET http://ws.rcc.uchicago.edu/api/v1/magazines.json?year=2011&sort=desc
-  * GET http://ws.rcc.uchicago.edu/api/v1/magazines.json?topic=economy&year=2011
+* A single user in JSON format:
 
-* A single magazine in JSON format:
-  * GET http://ws.rcc.uchicago.edu/api/v1/magazines/1234.json
+    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}.json
 
-* All articles in (or belonging to) this magazine:
-  * GET http://ws.rcc.uchicago.edu/api/v1/magazines/1234/articles.json
+* All running jobs belonging to a user:
 
-* All articles in this magazine in XML format:
-  * GET http://ws.rcc.uchicago.edu/api/v1/magazines/1234/articles.xml
+    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}/jobs.html
+
+* All jobs returned in JSON format:
+
+    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}/jobs.json
+
 
 * Specify optional fields in a comma separated list:
-  * GET http://ws.rcc.uchicago.edu/api/v1/magazines/1234.json?fields=title,subtitle,date
+
+    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}.json?fields=title,group,quota
 
 * Add a new article to a particular magazine:
+
   * POST http://ws.rcc.uchicago.edu/api/v1/magazines/1234/articles
-
-
-### Bad examples
-
-* Non-plural noun:
-  * http://ws.rcc.uchicago.edu/magazine
-  * http://ws.rcc.uchicago.edu/magazine/1234
-  * http://ws.rcc.uchicago.edu/publisher/magazine/1234
-
-* Verb in URL:
-  * http://ws.rcc.uchicago.edu/magazine/1234/create
-
-* Filter outside of query string
-  * http://ws.rcc.uchicago.edu/magazines/2011/desc
 
 
 ## HTTP Verbs
@@ -135,11 +123,11 @@ The HTTP verb (method) specified in a request indicates they type of action to b
 
 Here's an example of how HTTP verbs map to create, read, update, delete operations in a particular context:
 
-| HTTP METHOD | POST            | GET       | PUT         | DELETE |
-| ----------- | --------------- | --------- | ----------- | ------ |
-| CRUD OP     | CREATE          | READ      | UPDATE      | DELETE |
-| /dogs       | Create new dogs | List dogs | Bulk update | Delete all dogs |
-| /dogs/1234  | Error           | Show Bo   | If exists, update Bo; If not, error | Delete Bo |
+|             | CREATE          | READ       | UPDATE      | DELETE   |
+| ----------- | --------------- | ---------- | ----------- | -------- |
+|             | `POST`          | `GET`      | `PUT`       | `DELETE` |
+| /users      | create user     | list users | bulk update | delete all users! |
+| /users/{id} | error           | show user  | if user exists, update; if not, error | delete user |
 
 
 ## Responses
