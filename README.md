@@ -1,8 +1,9 @@
 # RCC Web Service Standards
 
-* [Guidelines](#guidelines)
-* [Pragmatic REST](#pragmatic-rest)
-* [RESTful URLs](#restful-urls)
+This document provides guidelines and examples for Web APIs produced by the RCC, encouraging consistency, maintainability, and best practices across applications. RCC Web Services aim to balance a truly RESTful API interface with a positive developer experience (DX).
+
+* [Basics](#basics)
+* [URLs](#urls)
 * [HTTP Verbs](#http-verbs)
 * [Responses](#responses)
 * [Error handling](#error-handling)
@@ -10,77 +11,129 @@
 * [Record limits](#record-limits)
 * [Request & Response Examples](#request--response-examples)
 * [Mock Responses](#mock-responses)
-* [JSONP](#jsonp)
+* [Tutorials](#tutorials)
+* [See Also](#see-also)
 
 
-## Guidelines
+## Basics
 
-This document provides guidelines and examples for Web APIs produced by the RCC, encouraging consistency, maintainability, and best practices across applications. RCC Web Services aim to balance a truly RESTful API interface with a positive developer experience (DX).
+* Your API should be designed around the idea of **resources**.
 
-This document borrows heavily from:
-* [Whitehouse API Standards](https://github.com/WhiteHouse/api-standards), from which this guide was originally forked
-* [Designing HTTP Interfaces and RESTful Web Services](https://www.youtube.com/watch?v=zEyg0TnieLg)
-* [API Facade Pattern](http://apigee.com/about/resources/ebooks/api-fa%C3%A7ade-pattern), by Brian Mulloy, Apigee
-* [Web API Design](http://pages.apigee.com/web-api-design-ebook.html), by Brian Mulloy, Apigee
-* [Fielding's Dissertation on REST](http://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm)
+* Resources represent **things** (nouns) and not behaviors (verbs).
 
-
-## Pragmatic REST
-
-These guidelines aim to support a truly RESTful API. Here are a few exceptions:
-
-* Put the version number of the API in the URL (see examples below). Don’t accept any requests that do not specify a version number.
-* Allow users to request formats like JSON or XML like this:
-  * http://ws.rcc.uchicago.edu/api/v1/magazines.json
-  * http://ws.rcc.uchicago.edu/api/v1/magazines.xml
-
-
-## RESTful URLs
-
-### General guidelines for RESTful URLs
 * A URL identifies a resource.
-* URLs should include nouns, not verbs.
-* Use plural nouns only for consistency (no singular nouns).
-* Use HTTP verbs (`GET`, `POST`, `PUT`, `DELETE`) to operate on the collections and elements.
-* You shouldn’t need to go deeper than `resource/identifier/resource`.
-* Put the version number at the base of your URL, for example http://example.com/v1/path/to/resource.
-* URL v. header:
-  * If it changes the logic you write to handle the response, put it in the URL.
-  * If it doesn’t change the logic for each response, like OAuth info, put it in the header.
-* Specify optional fields in a comma separated list.
-* Formats should be in the form of api/v2/resource/{id}.json
 
-### Good URL examples
+* Each resource should have a canonical/unique URL (`/api/v2/users/bill`, `/api/v2/users/mary`).
+
+* When identifying a resource with a URL, use plural nouns only for consistency (no singular nouns).
+
+* HTTP methods (`GET`, `POST`, `PUT`, etc.) represent behaviors on your resources.
+They indicate the type of action to be taken on a resource.
+
+* Instance resources (`/api/users/bob`) should be represented as a child of some parent collection resource (`/api/users`).
+
+* Collections are themselves resources with their own properties.
+
+* Collections should support both **create** and **query** requests.
+
+* Instance resources should support **read**, **update**, and **delete** operations.
+
+* Return all resource properties in the return payload.
+
+* Put the version number of the API in the base of the URL: `http://ws.rcc.uchicago.edu/api/v1/...`
+
+* Allow users to request resource representations in particular formats, e.g.:
+  * `/api/v1/users.json`
+  * `/api/v1/users.html`
+  * `/api/v1/users.csv`
+
+* You shouldn’t need to go deeper than `resource/identifier/resource`.
+
+* Info included in the header of a request for a resource (such as authentication info) shouldn't generally affect how that resource is represented in the response. Different resource representations should only result from requesting different URLs.
+
+
+---
+
+
+Suppose the base URI of our API is `http://acme.org/api`.
+
+
+#### `/users`
+
+We'll represent the set of all Acme users with a user collection resource (`/users`) and handle any incoming http requests to `http://acme.org/api/users` on the basis of the request method:
+
+* `GET` - return a list of URIs for the user instance resources in this collection.
+
+* `PUT` - **replace** the entire collection with a new set of users.
+
+* `POST` - **create** a new user and returning the new user's unique resource URI.
+
+* `DELETE` - **delete** the collection of users.
+
+
+#### `/users/{id}`
+
+We'll represent an Acme user (e.g., "Bob") with a user instance resource (`/users/bob`) and handle any incoming http requests to `http://acme.org/api/users/bob` on the basis of the request method:
+
+* `GET` - return a representation of the user (e.g., a JSON-encoded data structure containing info about the user).
+
+* `PUT` - **replace** the user at the specified URI or **create** if they don't yet exist. (Note that you typically want to create new users with a `POST` method on the collection.)
+
+* `POST` - this method is not typically utilized on an instance resource, but if you're representing individual users as sub-collections (say, collections of individual responsibilities, each represented as instance resources) then you would handle the request by creating a new entry.  For example, if sending a `POST` request to `/users/bob` with info about Bob's responsibility to care for the chickens you might return and instance resource URI like `/users/bob/chickens`, etc.
+
+* `DELETE` - **delete** the user.
+
+
+---
+
+
+### URLs
+
+
+### Good examples
+
 * List of magazines:
   * GET http://ws.rcc.uchicago.edu/api/v1/magazines.json
+
 * Filtering is a query:
   * GET http://ws.rcc.uchicago.edu/api/v1/magazines.json?year=2011&sort=desc
   * GET http://ws.rcc.uchicago.edu/api/v1/magazines.json?topic=economy&year=2011
+
 * A single magazine in JSON format:
   * GET http://ws.rcc.uchicago.edu/api/v1/magazines/1234.json
+
 * All articles in (or belonging to) this magazine:
   * GET http://ws.rcc.uchicago.edu/api/v1/magazines/1234/articles.json
+
 * All articles in this magazine in XML format:
   * GET http://ws.rcc.uchicago.edu/api/v1/magazines/1234/articles.xml
+
 * Specify optional fields in a comma separated list:
   * GET http://ws.rcc.uchicago.edu/api/v1/magazines/1234.json?fields=title,subtitle,date
+
 * Add a new article to a particular magazine:
   * POST http://ws.rcc.uchicago.edu/api/v1/magazines/1234/articles
 
-### Bad URL examples
+
+### Bad examples
+
 * Non-plural noun:
   * http://ws.rcc.uchicago.edu/magazine
   * http://ws.rcc.uchicago.edu/magazine/1234
   * http://ws.rcc.uchicago.edu/publisher/magazine/1234
+
 * Verb in URL:
   * http://ws.rcc.uchicago.edu/magazine/1234/create
+
 * Filter outside of query string
   * http://ws.rcc.uchicago.edu/magazines/2011/desc
 
+
 ## HTTP Verbs
 
-HTTP verbs, or methods, should be used in compliance with their definitions under the [HTTP/1.1](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html) standard.
-The action taken on the representation will be contextual to the media type being worked on and its current state. Here's an example of how HTTP verbs map to create, read, update, delete operations in a particular context:
+The HTTP verb (method) specified in a request indicates they type of action to be taken on a resource.  The action taken depends on the resource representation's media type (and its current state).
+
+Here's an example of how HTTP verbs map to create, read, update, delete operations in a particular context:
 
 | HTTP METHOD | POST            | GET       | PUT         | DELETE |
 | ----------- | --------------- | --------- | ----------- | ------ |
@@ -88,14 +141,13 @@ The action taken on the representation will be contextual to the media type bein
 | /dogs       | Create new dogs | List dogs | Bulk update | Delete all dogs |
 | /dogs/1234  | Error           | Show Bo   | If exists, update Bo; If not, error | Delete Bo |
 
-(Example from Web API Design, by Brian Mulloy, Apigee.)
-
 
 ## Responses
 
 * No values in keys
 * No internal-specific names (e.g. "node" and "taxonomy term")
 * Metadata should only contain direct properties of the response set, not properties of the members of the response set
+
 
 ### Good examples
 
@@ -176,6 +228,7 @@ Information about record limits and total available count should also be include
   - [GET /magazines/[id]](#get-magazinesid)
   - [POST /magazines/[id]/articles](#post-magazinesidarticles)
 
+
 ### GET /magazines
 
 Example: http://ws.rcc.uchicago.edu/api/v1/magazines.json
@@ -223,6 +276,7 @@ Response body:
         ]
     }
 
+
 ### GET /magazines/[id]
 
 Example: http://ws.rcc.uchicago.edu/api/v1/magazines/[id].json
@@ -239,7 +293,6 @@ Response body:
         ],
         "created": "1231621302"
     }
-
 
 
 ### POST /magazines/[id]/articles
@@ -271,32 +324,34 @@ Implementing this feature early in development ensures that the API will exhibit
 Note: If the mock parameter is included in a request to the production environment, an error should be raised.
 
 
-## JSONP
+## Tutorials
 
-JSONP is easiest explained with an example. Here's one from [StackOverflow](http://stackoverflow.com/questions/2067472/what-is-jsonp-all-about?answertab=votes#tab-top):
+There are numerous tutorials on the web that will walk you through building a
+basic REST API.  If you're comfortable using [node](https://nodejs.org/), the
+following two articles cover the basics using two widely-used node frameworks:
 
-> Say you're on domain abc.com, and you want to make a request to domain xyz.com. To do so, you need to cross domain boundaries, a no-no in most of browserland.
+* [express](https://scotch.io/tutorials/build-a-restful-api-using-node-and-express-4) - utilizes Express 4 and MongoDB.
 
-> The one item that bypasses this limitation is `<script>` tags. When you use a script tag, the domain limitation is ignored, but under normal circumstances, you can't really DO anything with the results, the script just gets evaluated.
+* [restify](https://stormpath.com/blog/build-api-restify-stormpath/) - utilizes
+  Restify and implements an OAuth2 client credential workflow with a helper
+  library, nicely overviewing how you might go about authenticating your API;
+  also walks you through developing a simple client for the API.
 
-> Enter JSONP. When you make your request to a server that is JSONP enabled, you pass a special parameter that tells the server a little bit about your page. That way, the server is able to nicely wrap up its response in a way that your page can handle.
+If you'd rather develop your REST APIs using Go (recommended!), try:
 
-> For example, say the server expects a parameter called "callback" to enable its JSONP capabilities. Then your request would look like:
+* [json api](http://thenewstack.io/make-a-restful-json-api-go/) - nice
+  step-by-step walkthrough.
 
->         http://www.xyz.com/sample.aspx?callback=mycallback
+* [how i start](https://howistart.org/posts/go/1) - works through building
+  a backend service proving weather data.
 
-> Without JSONP, this might return some basic javascript object, like so:
 
->         { foo: 'bar' }
+## See Also
 
-> However, with JSONP, when the server receives the "callback" parameter, it wraps up the result a little differently, returning something like this:
+* [Whitehouse API Standards](https://github.com/WhiteHouse/api-standards), from which this guide was originally forked
 
->         mycallback({ foo: 'bar' });
+* [Designing HTTP Interfaces and RESTful Web Services](https://www.youtube.com/watch?v=zEyg0TnieLg)
 
-> As you can see, it will now invoke the method you specified. So, in your page, you define the callback function:
+* [API Facade Pattern](http://apigee.com/about/resources/ebooks/api-fa%C3%A7ade-pattern), by Brian Mulloy, Apigee
 
->         mycallback = function(data){
->             alert(data.foo);
->         };
-
-http://stackoverflow.com/questions/2067472/what-is-jsonp-all-about?answertab=votes#tab-top
+* [Web API Design](http://pages.apigee.com/web-api-design-ebook.html), by Brian Mulloy, Apigee
