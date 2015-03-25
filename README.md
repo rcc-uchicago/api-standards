@@ -3,11 +3,11 @@
 This document provides guidelines and examples for Web APIs produced by the RCC, encouraging consistency, maintainability, and best practices across applications. RCC Web Services aim to balance a truly RESTful API interface with a positive developer experience (DX).
 
 * [Basics](#basics)
+* [Example](#example)
 * [URLs](#urls)
 * [HTTP Verbs](#http-verbs)
 * [Responses](#responses)
 * [Error handling](#error-handling)
-* [Versions](#versions)
 * [Record limits](#record-limits)
 * [Request & Response Examples](#request--response-examples)
 * [Mock Responses](#mock-responses)
@@ -52,14 +52,14 @@ They indicate the type of action to be taken on a resource.
 * Info included in the header of a request for a resource (such as authentication info) shouldn't generally affect how that resource is represented in the response. Different resource representations should only result from requesting different URLs.
 
 
-## An Example
+## Example
 
-Suppose the base URI of our API is `http://acme.org/api`.
+The HTTP verb (method) specified in a request indicates the type of action to be taken on a resource.  Below is an example of how the standard HTTP methods map to CRUD (create, read, update, delete) operations in a particular context.
 
 
 #### `/users`
 
-We'll represent the set of all Acme users with a user collection resource (`/users`) and handle any incoming http requests to `http://acme.org/api/users` on the basis of the request method:
+We'll represent the set of all Acme users with a user collection resource (`/users`) and handle any incoming http requests to `http://acme.org/api/v2/users` on the basis of the request method:
 
 * `GET` - return a list of URIs for the user instance resources in this collection.
 
@@ -72,7 +72,7 @@ We'll represent the set of all Acme users with a user collection resource (`/use
 
 #### `/users/{id}`
 
-We'll represent an Acme user (e.g., "Bob") with a user instance resource (`/users/bob`) and handle any incoming http requests to `http://acme.org/api/users/bob` on the basis of the request method:
+We'll represent an Acme user (e.g., "Bob") with a user instance resource (`/users/bob`) and handle any incoming http requests to `http://acme.org/api/v2/users/bob` on the basis of the request method:
 
 * `GET` - return a representation of the user (e.g., a JSON-encoded data structure containing info about the user).
 
@@ -82,46 +82,7 @@ We'll represent an Acme user (e.g., "Bob") with a user instance resource (`/user
 
 * `DELETE` - **delete** the user.
 
-
-### URLs
-
-Examples of good URL design:
-
-* List of users returned in JSON format:
-  
-    GET http://ws.rcc.uchicago.edu/api/v1/users.json
-
-* Query string filtering:
-  
-    GET http://ws.rcc.uchicago.edu/api/v1/users.json?group=rcc&sort=usage
-
-* A single user in JSON format:
-
-    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}.json
-
-* All running jobs belonging to a user:
-
-    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}/jobs.html
-
-* All jobs returned in JSON format:
-
-    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}/jobs.json
-
-
-* Specify optional fields in a comma separated list:
-
-    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}.json?fields=title,group,quota
-
-* Add a new article to a particular magazine:
-
-  * POST http://ws.rcc.uchicago.edu/api/v1/magazines/1234/articles
-
-
-## HTTP Verbs
-
-The HTTP verb (method) specified in a request indicates they type of action to be taken on a resource.  The action taken depends on the resource representation's media type (and its current state).
-
-Here's an example of how HTTP verbs map to create, read, update, delete operations in a particular context:
+In other words ...
 
 |             | CREATE          | READ       | UPDATE      | DELETE   |
 | ----------- | --------------- | ---------- | ----------- | -------- |
@@ -130,26 +91,52 @@ Here's an example of how HTTP verbs map to create, read, update, delete operatio
 | /users/{id} | error           | show user  | if user exists, update; if not, error | delete user |
 
 
+## URLs
+
+Here are some additional examples of good URL design.
+
+List of users returned in JSON format:
+
+    GET http://ws.rcc.uchicago.edu/api/v1/users.json
+
+Query string filtering:
+
+    GET http://ws.rcc.uchicago.edu/api/v1/users.json?group=rcc&sort=usage
+
+A single user in JSON format:
+
+    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}.json
+
+All running jobs belonging to a user:
+
+    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}/jobs.html
+
+All jobs returned in JSON format:
+
+    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}/jobs.json
+
+Specify optional fields in a comma separated list:
+
+    GET http://ws.rcc.uchicago.edu/api/v1/users/{id}.json?fields=title,group,quota
+
+Add a new article to a particular magazine:
+
+    POST http://ws.rcc.uchicago.edu/api/v1/magazines/1234/articles
+
+
 ## Responses
 
-* No values in keys
-* No internal-specific names (e.g. "node" and "taxonomy term")
-* Metadata should only contain direct properties of the response set, not properties of the members of the response set
+When repsonding to requests, avoid returning values in the keys of your
+response paylod.
 
-
-### Good examples
-
-No values in keys:
+For example, return this ...
 
     "tags": [
       {"id": "125", "name": "Environment"},
       {"id": "834", "name": "Water Quality"}
     ],
 
-
-### Bad examples
-
-Values in keys:
+... instead of this ...
 
     "tags": [
       {"125": "Environment"},
@@ -171,19 +158,10 @@ Error responses should include a common HTTP status code, message for the develo
        http://drupal.org/node/444444",
     }
 
-Use three simple, common response codes indicating (1) success, (2) failure due to client-side problem, (3) failure due to server-side problem:
-* 200 - OK
-* 400 - Bad Request
-* 500 - Internal Server Error
-
-
-## Versions
-
-* Never release an API without a version number.
-* Versions should be integers, not decimal numbers, prefixed with ‘v’. For example:
-  * Good: v1, v2, v3
-  * Bad: v-1.1, v1.2, 1.3
-* Maintain APIs at least one version back.
+Use three simple, common response codes:
+* `200 - OK` - success
+* `400 - Bad Request` - failure due to client-side problem
+* `500 - Internal Server Error` - failure due to server-side problem
 
 
 ## Record limits
