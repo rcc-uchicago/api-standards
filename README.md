@@ -305,6 +305,8 @@ If you'd rather develop your REST APIs using Go (recommended!), try:
 
 ## See Also
 
+* [HTTP API Design Guide](https://github.com/interagent/http-api-design#http-api-design-guide), describing current best practices in additional detail
+
 * [Whitehouse API Standards](https://github.com/WhiteHouse/api-standards), from which this guide was originally forked
 
 * [Designing HTTP Interfaces and RESTful Web Services](https://www.youtube.com/watch?v=zEyg0TnieLg)
