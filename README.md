@@ -305,6 +305,8 @@ If you'd rather develop your REST APIs using Go (recommended!), try:
 
 ## See Also
 
+* [REST API Quick Reference](http://www.restapitutorial.com/) - nice reference with a summary a [basic tips](http://www.restapitutorial.com/lessons/restquicktips.html).
+
 * [RESTful Web Services](http://www.crummy.com/writing/RESTful-Web-Services/html)
   * [Resource-Oriented Architecture](http://www.crummy.com/writing/RESTful-Web-Services/html/#calibre_link-33)
   * [Best Practices](http://www.crummy.com/writing/RESTful-Web-Services/html/#calibre_link-15)
@@ -312,6 +314,8 @@ If you'd rather develop your REST APIs using Go (recommended!), try:
 * [HTTP API Design Guide](https://github.com/interagent/http-api-design#http-api-design-guide), describing current best practices in additional detail
 
 * [Whitehouse API Standards](https://github.com/WhiteHouse/api-standards), from which this guide was originally forked
+
+
 
 * [Designing HTTP Interfaces and RESTful Web Services](https://www.youtube.com/watch?v=zEyg0TnieLg)
 
