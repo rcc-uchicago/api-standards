@@ -16,7 +16,7 @@ This document provides guidelines and examples for Web APIs produced by the RCC,
 
 ## Basics
 
-* Your API should be designed around the idea of **resources**.
+* Your API should be designed around the idea of [resources](http://www.crummy.com/writing/RESTful-Web-Services/html/#calibre_link-1637).
 
 * Resources represent **things** (nouns) and not behaviors (verbs).
 
@@ -304,6 +304,10 @@ If you'd rather develop your REST APIs using Go (recommended!), try:
 
 
 ## See Also
+
+* [RESTful Web Services](http://www.crummy.com/writing/RESTful-Web-Services/html)
+  * [Resource-Oriented Architecture](http://www.crummy.com/writing/RESTful-Web-Services/html/#calibre_link-33)
+  * [Best Practices](http://www.crummy.com/writing/RESTful-Web-Services/html/#calibre_link-15)
 
 * [HTTP API Design Guide](https://github.com/interagent/http-api-design#http-api-design-guide), describing current best practices in additional detail
 
